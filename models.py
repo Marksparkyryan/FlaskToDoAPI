@@ -8,7 +8,8 @@ from peewee import *
 import config
 
 DATABASE = SqliteDatabase('todos.sqlite')
-HASHER = 
+HASHER = PasswordHasher()
+
 
 class User(Model):
     """Schema describing a user instance
@@ -42,11 +43,28 @@ class User(Model):
     def verify_password(self, password):
         return HASHER.verify(self.password, password)
 
+    def generate_auth_token(self, expires=3600):
+        serializer = Serializer(config.SECRET_KEY, expires_in=expires)
+        return serializer.dumps({'id': self.id})
+    
+    @staticmethod
+    def verify_auth_token(token):
+        serializer = Serializer(config.SECRET_KEY)
+        try:
+            data = serializer.loads(token)
+        except (SignatureExpired, BadSignature):
+            return None
+        else:
+            user = User.get(User.id==data['id'])
+            return user
 
-class Todo(Model):
+
+
+
+class ToDo(Model):
     """Schema describing a todo instance.
     """
-    title = CharField(max_length=256, unique=True)
+    name = CharField(max_length=256, unique=True)
     completed = BooleanField(default=False)
     created_by = ForeignKeyField(User, related_name='todo_set')
 
@@ -56,5 +74,5 @@ class Todo(Model):
 
 def initialize():
     DATABASE.connect(reuse_if_open=True)
-    DATABASE.create_tables([Todo], safe=True)
+    DATABASE.create_tables([User, ToDo], safe=True)
     DATABASE.close()

@@ -15,6 +15,7 @@ a {
   background: #fff;
   width: 80%;
   min-width: 500px;
+  max-width: 800px;
   margin: 80px auto 0;
   border-top: 40px solid #5a6772;
   text-align: left; }
@@ -68,4 +69,30 @@ input[type="checkbox"] + span {
 }
 input[type="checkbox"]:checked + span {
     background:url(checkbox-filled.svg) left top no-repeat;
+}
+
+.login-form {
+  width: auto;
+  padding: 50px;
+}
+
+.nav-bar {
+  width: 80%;
+  height: 50px;
+  min-width: 500px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.nav-bar ul {
+  list-style-type: none;
+}
+
+.nav-bar li {
+  float: right;
+}
+
+.nav-bar li a {
+  display: block;
+  padding: 15px 18px;
 }
