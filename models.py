@@ -43,7 +43,7 @@ class User(Model):
     def verify_password(self, password):
         return HASHER.verify(self.password, password)
 
-    def generate_auth_token(self, expires=3600):
+    def generate_auth_token(self, expires=6000):
         serializer = Serializer(config.SECRET_KEY, expires_in=expires)
         return serializer.dumps({'id': self.id})
     
@@ -59,14 +59,13 @@ class User(Model):
             return user
 
 
-
-
 class ToDo(Model):
-    """Schema describing a todo instance.
+    """Schema describing an item in the todo list
     """
     name = CharField(max_length=256, unique=True)
     completed = BooleanField(default=False)
     created_by = ForeignKeyField(User, related_name='todo_set')
+    edited = BooleanField(default=False)
 
     class Meta:
         database = DATABASE

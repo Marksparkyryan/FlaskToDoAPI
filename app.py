@@ -1,6 +1,6 @@
 import json
 
-from flask import Flask, g, jsonify, render_template, flash, redirect, url_for, make_response
+from flask import Flask, g, jsonify, render_template, flash, redirect, url_for, make_response, session
 
 import auth
 import config
@@ -15,8 +15,7 @@ app.config['SECRET_KEY'] = config.SECRET_KEY
 app.register_blueprint(todos_api, url_prefix='/api/v1')
 
 
-@app.route('/')
-# @auth.auth.login_required
+@app.route('/', methods=["GET"])
 def my_todos():
     return render_template('index.html')
 
@@ -25,21 +24,19 @@ def my_todos():
 def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
-        try:
-            auth.verify_password(form.email.data, form.password.data)
-        except models.User.DoesNotExist:
-            flash("Your email or password does not match!", "error")
+        if not auth.verify_password(form.email.data, form.password.data):
+            print("not logged in")
+            pass
         else:
-            response = make_response()
             token = g.user.generate_auth_token()
-            response.headers['Authorization'] = "Token " + token.decode('ascii')
-            return response
+            session['token'] = token.decode('ascii') 
+            return redirect(url_for('my_todos'))
     return render_template('login.html', form=form)
 
 
 if __name__ == '__main__':
     models.initialize()
-    if config.DEBUG:
+    if config.DEBUG and not config.TESTING:
         try:
             models.User.create_user(
                 username='sparky',

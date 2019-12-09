@@ -1,4 +1,5 @@
-from flask import Blueprint, g, url_for, abort
+import json
+from flask import Blueprint, g, url_for, abort, make_response, jsonify
 
 from flask_restful import Resource, reqparse, marshal, fields, Api, marshal_with
 
@@ -10,13 +11,14 @@ todo_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'completed': fields.Boolean,
+    'edited': fields.Boolean
 }
 
 
 def todo_or_404(todo_id):
     try:
         todo = models.ToDo.get_by_id(todo_id)
-    except models.ToDo.DoesNotExists:
+    except models.ToDo.DoesNotExist:
         abort(404)
     else:
         return todo
@@ -37,31 +39,39 @@ class ToDoList(Resource):
             default=False,
             location=['form', 'json']
         )
+        self.reqparse.add_argument(
+            'edited',
+            location=['form', 'json']
+        )
         super().__init__()
 
+    @auth.login_required
     def get(self):
         return [
             marshal(todo, todo_fields)
             for todo in models.ToDo.select()
-        ]
+        ], 200
 
+    @auth.login_required
     @marshal_with(todo_fields)
     def post(self):
         args = self.reqparse.parse_args()
-        print(args)
         todo = models.ToDo.create(
-            # fix this direct user, should be g object
-            created_by=models.User.get_by_id(1),
+            created_by=g.user,
             **args
         )
         return (todo, 201, {
             'Location': url_for('resources.todos.todo', id=todo.id)
         })
-
+    
 
 class ToDo(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument(
+            'id',
+            location=['form', 'json']
+        )
         self.reqparse.add_argument(
             'name',
             required=True,
@@ -72,31 +82,37 @@ class ToDo(Resource):
             'completed',
             location=['form', 'json']
         )
+        self.reqparse.add_argument(
+            'edited',
+            location=['form', 'json']
+        )
         super().__init__()
 
+    @auth.login_required
     @marshal_with(todo_fields)
     def get(self, id):
         return todo_or_404(id)
 
+    @auth.login_required
     @marshal_with(todo_fields)
     def put(self, id):
         args = self.reqparse.parse_args()
-        print(args)
-        try:
-            update = models.ToDo.update(**args).where(models.ToDo.id==id)
-            update.execute()
-        except models.ToDo.DoesNotExist:
-            return make_response(json.dumps(
-                {'error': 'That todo does not exist or is not editable'}
-            ), 403)
+        query = models.ToDo.update(**args).where(
+            models.ToDo.id==id,
+            models.ToDo.created_by==g.user
+        )
+        if not query.execute():
+            abort(403)
         todo = todo_or_404(id)
         return (todo, 200, {
-                'Location': url_for('resources.todos.todo', id=id)
-                })
+            'Location': url_for('resources.todos.todo', id=todo.id)
+        })
 
+    @auth.login_required
     def delete(self, id):
-        delete = models.ToDo.delete().where(models.ToDo.id==id)
-        delete.execute()
+        query = models.ToDo.delete().where(models.ToDo.id==id)
+        if query.execute() == 0:
+            return abort(404)
         return '', 204, {'Location': url_for('resources.todos.todos')}
 
 

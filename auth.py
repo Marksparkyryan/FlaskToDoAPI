@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, session
 
 from flask_httpauth import HTTPBasicAuth, HTTPTokenAuth, MultiAuth
 
@@ -20,14 +20,21 @@ def verify_password(email, password):
     except models.User.DoesNotExist:
         return False
     else:
+        # print("using basic auth", email, password)
         g.user = user
         return True
 
 
 @token_auth.verify_token
 def verify_token(token):
+    if not token:
+        try:
+            token = session['token']
+        except:
+            pass
     user = models.User.verify_auth_token(token)
     if user is not None:
+        print("Using token auth", token)
         g.user = user
         return True
     return False
