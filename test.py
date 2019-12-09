@@ -6,6 +6,7 @@ import tempfile
 from peewee import *
 
 from app import app
+import config
 from models import User, ToDo
 
 DATABASE = SqliteDatabase('test_db.sqlite')
@@ -152,5 +153,14 @@ class ResourceTestCases(ToDoTestBase):
 
 
 
+
 if __name__ == '__main__':
-    unittest.main()
+    try:
+        if config.TESTING is not True:
+            raise Exception("Config.TESTING is not True. To allow testing setconfig.TESTING "
+            "to True to create a testing database and ensure main database is "
+            "not used.")
+    except Exception as err:
+        print(err)
+    else:
+        unittest.main()
