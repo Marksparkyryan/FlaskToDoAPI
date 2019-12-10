@@ -1,6 +1,6 @@
 import json
 
-from flask import Flask, g, jsonify, render_template, flash, redirect, url_for, make_response, session
+from flask import Flask, g, render_template, flash, redirect, url_for, session
 
 import auth
 import config
@@ -18,7 +18,7 @@ app.register_blueprint(todos_api, url_prefix='/api/v1')
 @app.route('/', methods=["GET"])
 def my_todos():
     """Route for handling GET requests
-    
+
     Returns:
         200 response -- template response of index.html
     """
@@ -28,7 +28,7 @@ def my_todos():
 @app.route('/login', methods=("GET", "POST"))
 def login():
     """Route for handling the logging in of user
-    
+
     Returns:
         redirect response -- if successfull log in (attaches generated
         token to session)
@@ -36,11 +36,12 @@ def login():
     form = forms.LoginForm()
     if form.validate_on_submit():
         if not auth.verify_password(form.email.data, form.password.data):
-            print("not logged in")
-            pass
+            flash(message='Username and password are invalid.')
         else:
             token = g.user.generate_auth_token()
-            session['token'] = token.decode('ascii') 
+            session['token'] = token.decode('ascii')
+            flash(
+                message=f"You've been logged in with token {session['token']}")
             return redirect(url_for('my_todos'))
     return render_template('login.html', form=form)
 
@@ -64,8 +65,7 @@ if __name__ == '__main__':
                         created_by=1,
                         **todo
                     )
-        except Exception:
+        except models.IntegrityError:
             pass
 
     app.run(debug=config.DEBUG, host=config.HOST, port=config.PORT)
-    

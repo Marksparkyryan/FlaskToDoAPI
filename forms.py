@@ -9,6 +9,10 @@ class LoginForm(Form):
     Arguments:
         Form {class} -- Accepts user email and password from the
         submitted form data
+
+    Attributes:
+        email {string} -- user's email address
+        password {string} -- user's password
     """
     email = StringField(
         "Email",

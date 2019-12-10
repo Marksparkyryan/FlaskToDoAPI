@@ -6,6 +6,8 @@
   <link rel="stylesheet" href="/static/styles/main.css" type="text/css">
 </head>
 <body ng-app="todoListApp">
+
+
   <!-- Nav Bar -->
   <div class="nav-bar">
     <ul>
@@ -26,6 +28,15 @@
     working
     {% endif %}
    </div>
+<!-- Flash messages -->
+{% with messages = get_flashed_messages() %} {% if
+  messages %} {% for message in messages %}
+<div class="notification-bottom">
+  {{ message }}
+</div>
+{% endfor %} {% endif %} {% endwith %}
+<!-- /Flash messages -->
+
 
   <!-- Angular assets (DONT REMOVE)-->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
