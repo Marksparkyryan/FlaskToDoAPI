@@ -17,11 +17,22 @@ app.register_blueprint(todos_api, url_prefix='/api/v1')
 
 @app.route('/', methods=["GET"])
 def my_todos():
+    """Route for handling GET requests
+    
+    Returns:
+        200 response -- template response of index.html
+    """
     return render_template('index.html')
 
 
 @app.route('/login', methods=("GET", "POST"))
 def login():
+    """Route for handling the logging in of user
+    
+    Returns:
+        redirect response -- if successfull log in (attaches generated
+        token to session)
+    """
     form = forms.LoginForm()
     if form.validate_on_submit():
         if not auth.verify_password(form.email.data, form.password.data):
@@ -44,7 +55,7 @@ if __name__ == '__main__':
                 password='password'
             )
         except Exception:
-            print("Mock user already exists")
+            pass
         try:
             with open('mock/todos.json') as mocktodos:
                 json_reader = json.load(mocktodos)
@@ -54,7 +65,7 @@ if __name__ == '__main__':
                         **todo
                     )
         except Exception:
-            print("Mock todos already exist")
+            pass
 
     app.run(debug=config.DEBUG, host=config.HOST, port=config.PORT)
     

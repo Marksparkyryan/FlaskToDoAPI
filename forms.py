@@ -4,6 +4,12 @@ from wtforms.validators import DataRequired, Email
 
 
 class LoginForm(Form):
+    """Form for handling the logging in of user.
+    
+    Arguments:
+        Form {class} -- Accepts user email and password from the
+        submitted form data
+    """
     email = StringField(
         "Email",
         validators=[

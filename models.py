@@ -1,5 +1,4 @@
 import datetime
-
 from argon2 import PasswordHasher
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer,
                           BadSignature, SignatureExpired)
@@ -12,7 +11,23 @@ HASHER = PasswordHasher()
 
 
 class User(Model):
-    """Schema describing a user instance
+    """Model describing the user
+    
+    Attributes:
+        username {string} -- user's username
+        email {string} -- user's email
+        password {string} -- user's password
+
+    Methods:
+        create_user -- class method handling the creation of a new user
+        set_password -- handles the hashing of user's password
+        verify_password -- checks password against hash
+        generate_auth_token -- creates timed web token and returns as
+        json
+        verify_auth_token -- checks for valid token and returns user
+    
+    Returns:
+        instance -- instance of user
     """
     username = CharField(max_length=12, unique=True)
     email = CharField(unique=True)
@@ -64,8 +79,8 @@ class ToDo(Model):
     """
     name = CharField(max_length=256, unique=True)
     completed = BooleanField(default=False)
-    created_by = ForeignKeyField(User, related_name='todo_set')
     edited = BooleanField(default=False)
+    created_by = ForeignKeyField(User, related_name='todo_set')
 
     class Meta:
         database = DATABASE

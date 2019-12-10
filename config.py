@@ -1,3 +1,4 @@
+# Configuration file for app.py
 
 DEBUG = True
 HOST = '0.0.0.0'
