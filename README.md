@@ -27,7 +27,7 @@ DEBUG is set to False.
 
 If in DEBUG, use the following user to log in:
 
-email: sparky@email.com
+email: sparky@email.com<br/>
 password: password
 
 
