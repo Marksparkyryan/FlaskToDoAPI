@@ -47,8 +47,9 @@ def login():
 
 
 if __name__ == '__main__':
-    models.initialize()
-    if config.DEBUG and not config.TESTING:
+    
+    if config.DEBUG and config.TESTING != True:
+        models.initialize()
         try:
             models.User.create_user(
                 username='sparky',
@@ -68,4 +69,6 @@ if __name__ == '__main__':
         except models.IntegrityError:
             pass
 
-    app.run(debug=config.DEBUG, host=config.HOST, port=config.PORT)
+        app.run(debug=config.DEBUG, host=config.HOST, port=config.PORT)
+    else:
+        print("To run this app, config.TESTING must be changed to False.")
