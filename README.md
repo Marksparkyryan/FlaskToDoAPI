@@ -1,6 +1,6 @@
 # FlaskToDoAPI
 
-FlaskToDo is a demonstration of Flask's API framework in the form of a to-do list. A pre-built Angualar frontend was provided and the objective was to build a 
+FlaskToDo is a demonstration of Flask's API framework (flask_restful) in the form of a to-do list. A pre-built Angualar frontend was provided and the objective was to build a 
 backend with endpoints that handled each unique request. Additionally, all endpoints were protected by the requirement of a signed web token.
 
 
@@ -25,7 +25,10 @@ Note: If testing, config.TESTING should be True to prevent testing on main datab
 By default, DEBUG mode is set to True in config.py. This is good for testing but not good for deployment. If deploying, make sure
 DEBUG is set to False.
 
-If deploying, the secret key should be replaced in config.py - ideally inside an environment variable.
+If in DEBUG, use the following user to log in:
+
+email: sparky@email.com
+password: password
 
 
 <br/>
