@@ -9,6 +9,8 @@ import models
 todo_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    
+    'completed': fields.Boolean,
 }
 
 
@@ -48,13 +50,10 @@ class ToDoList(Resource):
         )
         self.reqparse.add_argument(
             'completed',
-            required=True,
+            required=False,
             location=['form', 'json']
         )
-        self.reqparse.add_argument(
-            'edited',
-            location=['form', 'json']
-        )
+        
         super().__init__()
 
     @auth.login_required
@@ -102,8 +101,13 @@ class ToDo(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
+            'id',
+            location=['form', 'json']
+        )
+        self.reqparse.add_argument(
             'completed',
             required=False,
+            default=False,
             location=['form', 'json']
         )
         self.reqparse.add_argument(
@@ -112,10 +116,7 @@ class ToDo(Resource):
             help='No name provided for todo item',
             location=['form', 'json']
         )
-        self.reqparse.add_argument(
-            'edited',
-            location=['form', 'json']
-        )
+        
         super().__init__()
 
     @auth.login_required
