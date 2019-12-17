@@ -6,16 +6,26 @@ from peewee import *
 from app import app
 import config
 from flask import url_for
+from flask_wtf.csrf import generate_csrf
 from models import User, ToDo
 from forms import LoginForm
 
 DATABASE = SqliteDatabase('test_db.sqlite')
+
+def login(client, username, password):
+    return client.post('/login', data=dict(
+        email=username,
+        password=password,
+        csrf_token=generate_csrf(),
+    ), follow_redirects=True)
 
 
 class ToDoTestBase(unittest.TestCase):
 
     def setUp(self):
         app.config['TESTING'] = True
+        app.config['WTF_CSRF_ENABLED'] = False
+        app.config['DEBUG'] = False
         self.app = app.test_client()
 
         DATABASE.connect()
@@ -57,21 +67,15 @@ class AppTestCases(ToDoTestBase):
         self.assertIn(b'My TODOs!', response.data)
 
     def test_login(self):
-        response = self.app.post(
-            path="/login", 
-            data=dict(email="user1@email.com", password="password1"),
-            follow_redirects=True
-            )
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'+ Add a New Task', response.data)
-        
-    def test_login_bad_password(self):
-        response = self.app.post('/login', data=dict(
-            email='user1@email.com',
-            password='badpassword'
-        ), follow_redirects=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Username and password are invalid.', response.data)
+        with app.test_request_context():
+            response = login(self.app, self.user1.email, "password1")
+            assert b'+ Add a New Task' in response.data
+    
+    def test_bad_login(self):
+        with app.test_request_context():
+            response = login(self.app, self.user1.email, "badpassword")
+            assert b'Username and password are invalid.' in response.data
+
 
 
 class ResourceTestCases(ToDoTestBase):
