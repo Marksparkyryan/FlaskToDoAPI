@@ -1,3 +1,4 @@
 test_db.sqlite
 todos.sqlite
 /htmlcov
+*.pyc
