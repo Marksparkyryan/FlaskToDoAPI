@@ -143,8 +143,8 @@ class ToDo(Model):
         created_by {int} -- id of the User instance
     """
     name = CharField(max_length=256, unique=True)
-    completed = BooleanField(default=False, null=True)
-    edited = BooleanField(default=False, null=True)
+    completed = BooleanField(default=False)
+    edited = BooleanField(default=False)
     created_by = ForeignKeyField(User, related_name='todo_set')
 
     class Meta:

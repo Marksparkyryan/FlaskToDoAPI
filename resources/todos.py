@@ -1,6 +1,6 @@
 from flask import Blueprint, g, url_for, abort
 from flask_restful import (Resource, reqparse, marshal, fields, Api,
-                           marshal_with)
+                           marshal_with, inputs)
 
 from auth import auth
 import models
@@ -9,6 +9,8 @@ import models
 todo_fields = {
     'id': fields.Integer,
     'name': fields.String,
+    'completed': fields.Boolean,
+    'edited': fields.Boolean,
 }
 
 
@@ -48,11 +50,7 @@ class ToDoList(Resource):
         )
         self.reqparse.add_argument(
             'completed',
-            required=True,
-            location=['form', 'json']
-        )
-        self.reqparse.add_argument(
-            'edited',
+            type=inputs.boolean,
             location=['form', 'json']
         )
         super().__init__()
@@ -102,8 +100,7 @@ class ToDo(Resource):
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument(
-            'completed',
-            required=False,
+            'id',
             location=['form', 'json']
         )
         self.reqparse.add_argument(
@@ -113,7 +110,8 @@ class ToDo(Resource):
             location=['form', 'json']
         )
         self.reqparse.add_argument(
-            'edited',
+            'completed',
+            type=inputs.boolean,
             location=['form', 'json']
         )
         super().__init__()
@@ -146,6 +144,7 @@ class ToDo(Resource):
             user is not the author of ToDo item.
         """
         args = self.reqparse.parse_args()
+        print("PUT incoming args", args)
         query = models.ToDo.update(**args).where(
             models.ToDo.id == id,
             models.ToDo.created_by == g.user
@@ -154,6 +153,7 @@ class ToDo(Resource):
             abort(403)
 
         todo = todo_or_404(id)
+        print("todo completed value before put return ", todo.completed)
         return (todo, 200, {
             'Location': url_for('resources.todos.todo', id=todo.id)
         })
