@@ -144,7 +144,6 @@ class ToDo(Resource):
             user is not the author of ToDo item.
         """
         args = self.reqparse.parse_args()
-        print("PUT incoming args", args)
         query = models.ToDo.update(**args).where(
             models.ToDo.id == id,
             models.ToDo.created_by == g.user
@@ -153,7 +152,6 @@ class ToDo(Resource):
             abort(403)
 
         todo = todo_or_404(id)
-        print("todo completed value before put return ", todo.completed)
         return (todo, 200, {
             'Location': url_for('resources.todos.todo', id=todo.id)
         })

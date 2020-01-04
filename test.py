@@ -120,7 +120,7 @@ class ResourceTestCases(ToDoTestBase):
             })
         self.assertEqual(response.status_code, 201)
         self.assertIn(b'do that thing', response.data)
-        self.assertEqual(len(json.loads(response.data)), 2)
+        self.assertEqual(len(json.loads(response.data)), 4)
         response = self.app.get(
             '/api/v1/todos',
             headers={
@@ -142,7 +142,7 @@ class ResourceTestCases(ToDoTestBase):
             })
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'clean the house', response.data)
-        self.assertEqual(len(json.loads(response.data)), 2)
+        self.assertEqual(len(json.loads(response.data)), 4)
 
     def test_todo_get_that_does_not_exist(self):
         """Test the getting of a single todo item that doesn't exist
@@ -174,7 +174,7 @@ class ResourceTestCases(ToDoTestBase):
             })
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'run faster', response.data)
-        self.assertEqual(len(json.loads(response.data)), 2)
+        self.assertEqual(len(json.loads(response.data)), 4)
 
     def test_edit_of_item_does_not_exist(self):
         token = self.get_token()
